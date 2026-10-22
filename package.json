@@ -10,6 +10,7 @@
     "dev:gh-us": "NODE_OPTIONS=--require=./scripts/gh-dns-us.cjs next dev -p 3000"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "next": "15.1.11",
     "next-auth": "5.0.0-beta.25",
     "react": "19.0.0",
