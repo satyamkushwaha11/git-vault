@@ -9,6 +9,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     GitHub({
       authorization: { params: { scope: "read:user user:email repo" } },
+      // GitHub now returns `iss` on the callback (RFC 9207). Without this,
+      // @auth/core <0.40 compares it against a placeholder and rejects every
+      // sign-in with "unexpected iss (issuer) response parameter value".
+      issuer: "https://github.com/login/oauth",
     }),
   ],
   callbacks: {

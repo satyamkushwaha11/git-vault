@@ -118,5 +118,31 @@ XSS bug would expose repo access. Worth knowing if you extend this.
 Deploys anywhere Next.js runs, Vercel included — the upload path no longer cares
 about serverless body limits.
 
-Set `AUTH_URL` to your deployed origin and add a second OAuth callback URL for it.
-# git-vault
+### Use a second OAuth app for production
+
+A GitHub **OAuth App has exactly one** Authorization callback URL — there's no
+way to register localhost and your live domain on the same app. (Multiple
+callbacks are a *GitHub App* feature, which is a different product.)
+
+So make a second OAuth app at <https://github.com/settings/developers> and keep
+the first one for local dev:
+
+| Field                      | Value                                             |
+| -------------------------- | ------------------------------------------------- |
+| Homepage URL               | `https://your-app.com`                            |
+| Authorization callback URL | `https://your-app.com/api/auth/callback/github`    |
+
+Then set these on your host, using the **new** app's credentials:
+
+```bash
+AUTH_GITHUB_ID=<production app client id>
+AUTH_GITHUB_SECRET=<production app client secret>
+AUTH_SECRET=<generate a fresh one: npx auth secret>
+AUTH_URL=https://your-app.com          # https, no trailing slash
+AUTH_TRUST_HOST=true                   # needed off Vercel (Railway, Render, Fly, VPS)
+```
+
+`AUTH_URL` must match the deployed origin exactly. If it doesn't line up with
+the callback URL you registered, sign-in fails with **"The redirect_uri MUST
+match the registered callback URL"** — that error always means those two strings
+differ, usually by a port, a protocol, or a trailing slash.
