@@ -60,6 +60,18 @@ OAuth token.
 
 Uploads and deletes are ordinary commits, so the full history stays in the repo.
 
+### Every location has a URL
+
+| URL                              | Shows                                    |
+| -------------------------------- | ---------------------------------------- |
+| `/`                              | Landing page (signed-in users go to `/vault`) |
+| `/vault`                         | Repo picker                              |
+| `/vault/owner/repo`              | Repo root on its default branch          |
+| `/vault/owner/repo/some/folder`  | A folder inside it                       |
+| `…?branch=name`                  | Any non-default branch                   |
+
+So refresh, back/forward, bookmarks and shared links all land where you expect.
+
 ### Public vs private repos
 
 The one real branch in the design, handled in [`app/api/media/route.ts`](app/api/media/route.ts):

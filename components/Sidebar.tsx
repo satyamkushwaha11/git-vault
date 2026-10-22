@@ -200,7 +200,7 @@ export default function Sidebar({
         </span>
         <ThemeToggle />
         <button
-          onClick={() => signOut()}
+          onClick={() => signOut({ redirectTo: "/" })}
           className="rounded-md px-2 py-1 text-[11px] text-ink-faint transition-colors hover:bg-hover hover:text-ink"
         >
           Sign out

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { vaultUrl } from "@/lib/routes";
 import Sidebar from "./Sidebar";
 import MediaGrid, { MOVE_MIME } from "./MediaGrid";
 import Lightbox from "./Lightbox";
@@ -38,22 +40,37 @@ type Dialog =
 export default function Vault({
   user,
   token,
+  repo,
+  path,
+  branchParam,
 }: {
   user: { name?: string | null; image?: string | null };
   /** Uploads go browser→GitHub directly, so the token has to reach the client. */
   token?: string;
+  /** Where we are, straight from the URL — see `vaultUrl` in lib/routes.ts. */
+  repo: string | null;
+  path: string;
+  branchParam: string | null;
 }) {
   const toast = useToast();
+  const router = useRouter();
 
   const [repos, setRepos] = useState<RepoSummary[]>([]);
   const [reposLoading, setReposLoading] = useState(true);
-  const [repo, setRepo] = useState<string | null>(null);
-  const [path, setPath] = useState("");
+  const [lastRepo, setLastRepo] = useState<string | null>(null);
 
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [branch, setBranch] = useState<string | null>(null);
   const [defaultBranch, setDefaultBranch] = useState<string | null>(null);
   const [branchLoading, setBranchLoading] = useState(false);
+
+  // The URL only names a branch when it isn't the default, and a stale link
+  // may name one that no longer exists — fall back rather than 404.
+  const branch = useMemo(() => {
+    if (!defaultBranch) return null;
+    if (branchParam && branches.some((b) => b.name === branchParam))
+      return branchParam;
+    return defaultBranch;
+  }, [branches, defaultBranch, branchParam]);
 
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(false);
@@ -82,7 +99,7 @@ export default function Vault({
         setRepos(data);
         const saved = localStorage.getItem(LAST_REPO);
         if (saved && data.some((r: RepoSummary) => r.full_name === saved))
-          setRepo(saved);
+          setLastRepo(saved);
       } catch (e) {
         toast("err", `Couldn't load repositories: ${(e as Error).message}`);
       } finally {
@@ -122,7 +139,7 @@ export default function Vault({
     let alive = true;
     setBranchLoading(true);
     setBranches([]);
-    setBranch(null);
+    setDefaultBranch(null);
 
     (async () => {
       try {
@@ -132,7 +149,6 @@ export default function Vault({
         if (!alive) return;
         setBranches(data.branches);
         setDefaultBranch(data.default);
-        setBranch(data.default);
       } catch (e) {
         if (alive) toast("err", `Couldn't load branches: ${(e as Error).message}`);
       } finally {
@@ -172,20 +188,41 @@ export default function Vault({
     load();
   }, [load]);
 
-  const selectRepo = (full: string) => {
-    setRepo(full);
-    setPath("");
+  /* ── Navigation (all of it goes through the URL) ────────── */
+
+  // Switching repo or folder re-renders this same component with new props,
+  // so uploads in flight and the repo list survive the navigation.
+  const selectRepo = useCallback(
+    (full: string) => {
+      setNavOpen(false);
+      router.push(vaultUrl(full));
+    },
+    [router],
+  );
+
+  const goPath = useCallback(
+    (p: string) => router.push(vaultUrl(repo, p, branchParam)),
+    [router, repo, branchParam],
+  );
+
+  // A folder may not exist on another branch, so a branch switch starts at root.
+  const selectBranch = useCallback(
+    (name: string) => router.push(vaultUrl(repo, "", name, defaultBranch)),
+    [router, repo, defaultBranch],
+  );
+
+  useEffect(() => {
+    if (!repo) return;
+    localStorage.setItem(LAST_REPO, repo);
+    setLastRepo(repo);
+  }, [repo]);
+
+  // Old results shouldn't linger under a new location's breadcrumbs.
+  useEffect(() => {
     setFilter("");
     setListing(null);
-    setNavOpen(false);
-    localStorage.setItem(LAST_REPO, full);
-  };
-
-  const selectBranch = (name: string) => {
-    setBranch(name);
-    setPath("");
-    setFilter("");
-  };
+    setErr(null);
+  }, [repo, path]);
 
   /* ── Derived ────────────────────────────────────────────── */
 
@@ -387,7 +424,7 @@ export default function Vault({
         toast("err", `Couldn't create repo: ${(e as Error).message}`);
       }
     },
-    [toast],
+    [toast, selectRepo],
   );
 
   const download = useCallback((item: Item) => {
@@ -497,6 +534,11 @@ export default function Vault({
             <Empty
               title="Pick a bucket"
               body="Choose a repository from the menu and it becomes your media store. Any repo you own will do — an empty one is a perfectly good place to start."
+              action={
+                lastRepo
+                  ? { label: `Open ${lastRepo}`, onClick: () => selectRepo(lastRepo) }
+                  : undefined
+              }
             />
           </>
         ) : (
@@ -506,7 +548,7 @@ export default function Vault({
               listing={listing}
               crumbs={crumbs}
               onCrumb={(i) =>
-                setPath(i < 0 ? "" : crumbs.slice(0, i + 1).join("/"))
+                goPath(i < 0 ? "" : crumbs.slice(0, i + 1).join("/"))
               }
               onDropCrumb={(i, from) =>
                 move(from, i < 0 ? "" : crumbs.slice(0, i + 1).join("/"))
@@ -565,7 +607,7 @@ export default function Vault({
                   onOpen={(item) =>
                     setLightbox(viewable.findIndex((v) => v.sha === item.sha))
                   }
-                  onEnterDir={setPath}
+                  onEnterDir={goPath}
                   onDelete={remove}
                   onDownload={download}
                   onRename={(item) => setDialog({ kind: "rename", item })}
@@ -877,10 +919,12 @@ function Empty({
   title,
   body,
   tone,
+  action,
 }: {
   title: string;
   body: string;
   tone?: "err";
+  action?: { label: string; onClick: () => void };
 }) {
   return (
     <div className="grid h-full min-h-[24rem] place-items-center px-6">
@@ -894,6 +938,14 @@ function Empty({
         </div>
         <h2 className="text-base font-medium">{title}</h2>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-faint">{body}</p>
+        {action && (
+          <button
+            onClick={action.onClick}
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-[12px] font-medium text-void transition-all duration-200 hover:-translate-y-0.5"
+          >
+            {action.label}
+          </button>
+        )}
       </div>
     </div>
   );

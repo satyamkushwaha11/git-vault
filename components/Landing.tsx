@@ -72,7 +72,7 @@ export default function Landing() {
         <button
           onClick={() => {
             setBusy(true);
-            signIn("github", { redirectTo: "/" });
+            signIn("github", { redirectTo: "/vault" });
           }}
           disabled={busy}
           style={{ animationDelay: "220ms" }}
