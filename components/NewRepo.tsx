@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { GlobeIcon, LockIcon, XIcon } from "./icons";
 
 export default function NewRepo({
+  canPrivate,
   onCancel,
   onCreate,
 }: {
+  /** A public-only session can't create private repos — GitHub would 403. */
+  canPrivate: boolean;
   onCancel: () => void;
   onCreate: (name: string, isPrivate: boolean) => void;
 }) {
   const [name, setName] = useState("");
-  const [isPrivate, setIsPrivate] = useState(true);
+  const [isPrivate, setIsPrivate] = useState(canPrivate);
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -76,11 +79,16 @@ export default function NewRepo({
             <div className="grid grid-cols-2 gap-2">
               <Choice
                 active={isPrivate}
+                disabled={!canPrivate}
                 onClick={() => setIsPrivate(true)}
                 icon={<LockIcon className="size-3.5" />}
                 tone="amber"
                 title="Private"
-                body="Only you. Files stream through this app — no public links."
+                body={
+                  canPrivate
+                    ? "Only you. Files stream through this app — no public links."
+                    : "Needs private access — enable it from the sidebar first."
+                }
               />
               <Choice
                 active={!isPrivate}
@@ -117,6 +125,7 @@ export default function NewRepo({
 
 function Choice({
   active,
+  disabled,
   onClick,
   icon,
   title,
@@ -124,6 +133,7 @@ function Choice({
   tone,
 }: {
   active: boolean;
+  disabled?: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   title: string;
@@ -140,8 +150,9 @@ function Choice({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={active}
-      className={`rounded-lg border p-2.5 text-left transition-colors ${
+      className={`rounded-lg border p-2.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
         active ? on : "border-line hover:border-line-strong"
       }`}
     >

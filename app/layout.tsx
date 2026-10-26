@@ -10,9 +10,34 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://git-vault.satyamkushwaha.online";
+
 export const metadata: Metadata = {
-  title: "git-vault — media storage on GitHub",
-  description: "Upload, browse and download media straight from a GitHub repo.",
+  metadataBase: new URL(SITE),
+  title: {
+    default: "git-vault — free media storage backed by your GitHub repo",
+    template: "%s · git-vault",
+  },
+  description:
+    "Turn any GitHub repository into a media bucket. Drag files in, browse them in a gallery, and get permanent links for your website. Free, open source, nothing stored on our servers.",
+  applicationName: "git-vault",
+  keywords: ["github", "media storage", "image hosting", "free cdn", "portfolio assets", "open source"],
+  openGraph: {
+    type: "website",
+    siteName: "git-vault",
+    title: "git-vault — your media, stored in GitHub",
+    description:
+      "Free, versioned media storage that is just a GitHub repo you already own. Try the live demo without signing in.",
+    url: SITE,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "git-vault — your media, stored in GitHub",
+    description:
+      "Free, versioned media storage that is just a GitHub repo you already own.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -21,7 +46,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable} data-theme="light">
+    <html
+      lang="en"
+      className={inter.variable}
+      data-theme="light"
+      // The theme script above swaps this attribute before hydration on purpose.
+      suppressHydrationWarning
+    >
       <head>
         {/*
           Runs before first paint: without it the page would render light and

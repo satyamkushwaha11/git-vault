@@ -1,0 +1,86 @@
+[
+  {
+    "path": "blog",
+    "name": "blog",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "path": "blog/cover-launch.webp",
+    "name": "cover-launch.webp",
+    "type": "file",
+    "size": 7298
+  },
+  {
+    "path": "blog/cover-roadmap.webp",
+    "name": "cover-roadmap.webp",
+    "type": "file",
+    "size": 10802
+  },
+  {
+    "path": "brand",
+    "name": "brand",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "path": "brand/logo.svg",
+    "name": "logo.svg",
+    "type": "file",
+    "size": 451
+  },
+  {
+    "path": "brand/palette.json",
+    "name": "palette.json",
+    "type": "file",
+    "size": 129
+  },
+  {
+    "path": "brand/wordmark.svg",
+    "name": "wordmark.svg",
+    "type": "file",
+    "size": 571
+  },
+  {
+    "path": "city-night.webp",
+    "name": "city-night.webp",
+    "type": "file",
+    "size": 11186
+  },
+  {
+    "path": "hero-banner.webp",
+    "name": "hero-banner.webp",
+    "type": "file",
+    "size": 10032
+  },
+  {
+    "path": "notes.md",
+    "name": "notes.md",
+    "type": "file",
+    "size": 283
+  },
+  {
+    "path": "paper-texture.webp",
+    "name": "paper-texture.webp",
+    "type": "file",
+    "size": 7850
+  },
+  {
+    "path": "product-shot.webp",
+    "name": "product-shot.webp",
+    "type": "file",
+    "size": 8896
+  },
+  {
+    "path": "studio-light.webp",
+    "name": "studio-light.webp",
+    "type": "file",
+    "size": 5936
+  },
+  {
+    "path": "sunset-ridge.webp",
+    "name": "sunset-ridge.webp",
+    "type": "file",
+    "size": 11906
+  }
+]

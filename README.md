@@ -31,6 +31,27 @@ npm install
 npm run dev
 ```
 
+### Two levels of GitHub access
+
+The sign-in button asks for `public_repo` only, so the consent screen is as
+small as it can be. "Include private repos" asks for `repo` instead, and a
+public-only session can upgrade later from the sidebar. The granted scopes come
+back on GitHub's token response and are kept on the session as `session.scope`;
+`lib/scopes.ts` is the single place that interprets them.
+
+### The live demo
+
+The landing page embeds a read-only copy of the gallery running on
+`public/demo/`, a handful of sample files committed to this repo. Thumbnails are
+served by the site itself; "copy link" hands out the real
+`raw.githubusercontent.com` URL for each file. Uploads in the demo are simulated
+in the browser and never leave it. Regenerate the sample media and its manifest
+with:
+
+```bash
+NODE_PATH=./node_modules node scripts/gen-demo.cjs
+```
+
 ## Features
 
 - **Buckets** — use any existing repo, or create one from the sidebar (public or

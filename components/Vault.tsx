@@ -40,6 +40,7 @@ type Dialog =
 export default function Vault({
   user,
   token,
+  canPrivate,
   repo,
   path,
   branchParam,
@@ -47,6 +48,8 @@ export default function Vault({
   user: { name?: string | null; image?: string | null };
   /** Uploads go browser→GitHub directly, so the token has to reach the client. */
   token?: string;
+  /** False when the session was granted `public_repo` only. */
+  canPrivate: boolean;
   /** Where we are, straight from the URL — see `vaultUrl` in lib/routes.ts. */
   repo: string | null;
   path: string;
@@ -512,6 +515,7 @@ export default function Vault({
         selected={repo}
         onSelect={selectRepo}
         onNewRepo={() => setDialog({ kind: "repo" })}
+        canPrivate={canPrivate}
         user={user}
         open={navOpen}
         onClose={() => setNavOpen(false)}
@@ -635,7 +639,11 @@ export default function Vault({
       {dragging && <DropVeil repo={repo!} path={path} branch={branch} />}
 
       {dialog?.kind === "repo" && (
-        <NewRepo onCancel={() => setDialog(null)} onCreate={createRepo} />
+        <NewRepo
+          canPrivate={canPrivate}
+          onCancel={() => setDialog(null)}
+          onCreate={createRepo}
+        />
       )}
 
       {dialog?.kind === "folder" && (

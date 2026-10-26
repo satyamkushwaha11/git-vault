@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Vault from "@/components/Vault";
 import { ToastProvider } from "@/components/Toast";
+import { hasPrivateScope } from "@/lib/scopes";
 
 /**
  * Optional catch-all: `/vault` shows the repo picker, `/vault/owner/repo/a/b`
@@ -41,6 +42,7 @@ export default async function VaultPage({
       <Vault
         user={{ name: session.user.name, image: session.user.image }}
         token={session.accessToken}
+        canPrivate={hasPrivateScope(session.scope)}
         repo={repo}
         path={rest.join("/")}
         branchParam={(Array.isArray(branch) ? branch[0] : branch) ?? null}

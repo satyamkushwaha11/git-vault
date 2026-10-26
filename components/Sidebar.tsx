@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
+import { FULL_SCOPE } from "@/lib/scopes";
 import type { RepoSummary } from "./types";
 import ThemeToggle from "./ThemeToggle";
 import {
@@ -21,6 +22,7 @@ export default function Sidebar({
   selected,
   onSelect,
   onNewRepo,
+  canPrivate,
   user,
   open,
   onClose,
@@ -30,6 +32,7 @@ export default function Sidebar({
   selected: string | null;
   onSelect: (full: string) => void;
   onNewRepo: () => void;
+  canPrivate: boolean;
   user: { name?: string | null; image?: string | null };
   /** Drawer state — only meaningful below `lg`, where the rail goes off-canvas. */
   open: boolean;
@@ -187,6 +190,27 @@ export default function Sidebar({
           </ul>
         )}
       </nav>
+
+      {!canPrivate && (
+        <div className="border-t border-line px-4 py-3">
+          <p className="text-[11px] leading-relaxed text-ink-faint">
+            Private repos are hidden — you signed in with public access only.
+          </p>
+          <button
+            onClick={() =>
+              signIn(
+                "github",
+                { redirectTo: location.pathname + location.search },
+                { scope: FULL_SCOPE },
+              )
+            }
+            className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-line bg-raised/60 px-2.5 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-line-strong"
+          >
+            <LockIcon className="size-3" />
+            Enable private repos
+          </button>
+        </div>
+      )}
 
       <div className="flex items-center gap-2.5 border-t border-line px-4 py-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
