@@ -4,6 +4,7 @@ import SignIn from "./landing/SignIn";
 import DemoVault from "./landing/DemoVault";
 import HowItWorks from "./landing/HowItWorks";
 import Trust from "./landing/Trust";
+import FAQ from "./landing/FAQ";
 import Footer from "./landing/Footer";
 import Reveal from "./landing/Reveal";
 import CopyForDesktop from "./landing/CopyForDesktop";
@@ -16,6 +17,7 @@ const NAV = [
   { label: "How it works", href: "#how" },
   { label: "Security", href: "#security" },
   { label: "Compare", href: "#compare" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 const COMPARE: { row: string; cells: (string | boolean)[] }[] = [
@@ -214,6 +216,8 @@ export default function Landing() {
             </div>
           </Reveal>
         </section>
+
+        <FAQ />
 
         {/* ── Final CTA ───────────────────────────────────────── */}
         <section className="mt-32">
