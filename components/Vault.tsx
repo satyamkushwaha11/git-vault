@@ -603,6 +603,14 @@ export default function Vault({
                       ? `No file here matches "${filter}".`
                       : "Drag files anywhere on this page to upload them, or start a folder to organise things."
                   }
+                  action={
+                    filter
+                      ? undefined
+                      : {
+                          label: "Upload files",
+                          onClick: () => fileInput.current?.click(),
+                        }
+                  }
                 />
               ) : (
                 <MediaGrid
